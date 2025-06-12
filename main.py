@@ -8,23 +8,6 @@ from payments_generator import get_payments_info
 from transactions_generator import get_transactions_info
 import pandas as pd
 
-
-client_activity_df = get_client_activity_info()
-clients_df = get_client_info()
-payments_df = get_payments_info()  # date_time
-logins_df = get_logins_info() #date_time
-transactions_df = get_transactions_info() #date_time 2
-
-# преобразуем даты к string
-client_activity_df['activity_date'] = pd.to_datetime(client_activity_df['activity_date']).astype(str)
-payments_df['payment_date'] = pd.to_datetime(payments_df['payment_date']).astype(str)
-logins_df['login_date'] = pd.to_datetime(logins_df['login_date']).astype(str)
-transactions_df['transaction_date'] = pd.to_datetime(transactions_df['transaction_date']).astype(str)
-transactions_df['record_saved_at'] = pd.to_datetime(transactions_df['record_saved_at']).astype(str)
-
-# print(transactions_df.info())
-# json_client_activity = client_activity_df.to_json('client_activity.json',orient='records', lines = True)
-
 # Настройки подключения к Kafka
 bootstrap_servers_value = '172.17.0.13:9092'
 def send_jsons_to_kafka(data_frame,posfix):
@@ -37,9 +20,34 @@ def send_jsons_to_kafka(data_frame,posfix):
         producer.send(f'24_rakitski_{posfix}', message)
     producer.flush()
 
+
+
+
+client_activity_df = get_client_activity_info()
+clients_df = get_client_info()
+payments_df = get_payments_info()  # date_time
+logins_df = get_logins_info() #date_time
+transactions_df = get_transactions_info() #date_time 2
+
+
+# преобразуем даты к string
+client_activity_df['activity_date'] = pd.to_datetime(client_activity_df['activity_date']).astype(str)
+clients_df['client_birthday'] = pd.to_datetime(clients_df['client_birthday']).astype(str)
+payments_df['payment_date'] = pd.to_datetime(payments_df['payment_date']).astype(str)
+logins_df['login_date'] = pd.to_datetime(logins_df['login_date']).astype(str)
+transactions_df['transaction_date'] = pd.to_datetime(transactions_df['transaction_date']).astype(str)
+transactions_df['record_saved_at'] = pd.to_datetime(transactions_df['record_saved_at']).astype(str)
+
+# print(transactions_df.info())
+# json_client_activity = client_activity_df.to_json('client_activity.json',orient='records', lines = True)
+
+
+
 send_jsons_to_kafka(payments_df,'payments')
-
-
+send_jsons_to_kafka(client_activity_df,'client_activity')
+send_jsons_to_kafka(clients_df,'clients')
+send_jsons_to_kafka(logins_df,'logins')
+send_jsons_to_kafka(transactions_df,'transactions')
 
 
 
